@@ -3,6 +3,7 @@ const express = require("express");
 const mongodb = require("mongodb");
 
 const app = express();
+let db;
 
 // CORS middleware
 app.use(function(req, res, next) {
