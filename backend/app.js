@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require('uuid');
 const express = require("express");
 const mongodb = require("mongodb");
 
@@ -20,12 +21,13 @@ app.listen(8080, ()=> {
     console.log("My app started.")
 });
 
-app.get("/addTask", async (req, res) => {
+app.post("/addTask", async (req, res) => {
     const queryParams = req.query;
     const task = queryParams.task;
-    await db.collection('tasks').insertOne({task, completed: false});
-    res.sendStatus(200)
-    console.log("Task added.")
+    const uid = uuidv4()
+    await db.collection('tasks').insertOne({task, completed: false, uid: uid});
+    res.status(500).json({ uid: uid})
+    console.log(`Task added with uid: ${uid}`)
 })
 
 app.get("/getTasks", async (req, res) => {
@@ -34,9 +36,22 @@ app.get("/getTasks", async (req, res) => {
     console.log("Tasks sent.")
 })
 
-app.put("/markCompleted", async (req, res) => {
+app.put("/toggleCompleted", async (req, res) => {
     const queryParams = req.query;
-    const task = queryParams.task;
-    await db.collection("tasks").updateOne({task}, { $set: {completed: true}});
-    res.sendStatus(200);
+    const taskUID = queryParams.uid;
+    let taskObject = await db.collection("tasks").findOne({uid: taskUID});
+    if(taskObject.completed){
+        await db.collection("tasks").updateOne({uid: taskUID}, { $set: {completed: false}});
+    }else{
+        await db.collection("tasks").updateOne({uid: taskUID}, { $set: {completed: true}});
+    }
+    taskObject = await db.collection("tasks").findOne({uid: taskUID});
+    res.status(200).json({uid: taskUID, completed: taskObject.completed})
+    console.log("Tasks marked completed.")
 });
+
+app.delete("/clearCompleted", async (req, res) => {
+    await db.collection("tasks").deleteMany({completed: true})
+    console.log("DELETED COMPLETED")
+    res.sendStatus(200)
+})
