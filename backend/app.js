@@ -18,8 +18,10 @@ app.listen(8080, ()=> {
     client.connect().then((server) => {
         db = server.db('joeys_app')
     });
-    console.log("My app started.")
+      console.log("My app started.")
 });
+
+
 
 app.post("/addTask", async (req, res) => {
     const queryParams = req.query;
