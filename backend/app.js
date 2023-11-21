@@ -3,6 +3,7 @@ const express = require("express");
 const mongodb = require("mongodb");
 
 const app = express();
+let db;
 
 // CORS middleware
 app.use(function(req, res, next) {
@@ -10,7 +11,7 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Include PUT here
     next();
-  });
+});
 
 app.listen(8080, ()=> {
     const mongodbUri = "mongodb://localhost:27017";
@@ -42,7 +43,8 @@ app.put("/toggleCompleted", async (req, res) => {
     let taskObject = await db.collection("tasks").findOne({uid: taskUID});
     if(taskObject.completed){
         await db.collection("tasks").updateOne({uid: taskUID}, { $set: {completed: false}});
-    }else{
+    }
+    else{
         await db.collection("tasks").updateOne({uid: taskUID}, { $set: {completed: true}});
     }
     taskObject = await db.collection("tasks").findOne({uid: taskUID});
