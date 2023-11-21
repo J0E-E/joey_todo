@@ -26,7 +26,7 @@ app.post("/addTask", async (req, res) => {
     const task = queryParams.task;
     const uid = uuidv4()
     await db.collection('tasks').insertOne({task, completed: false, uid: uid});
-    res.status(500).json({ uid: uid})
+    res.status(200).json({ uid: uid})
     console.log(`Task added with uid: ${uid}`)
 })
 
